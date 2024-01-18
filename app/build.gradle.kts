@@ -1,7 +1,11 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+
+val githubApiKey: String = gradleLocalProperties(rootDir).getProperty("GITHUB_API_KEY")
 
 android {
     namespace = "ke.eston.repoviewer"
@@ -21,6 +25,10 @@ android {
     }
 
     buildTypes {
+        all {
+            buildConfigField("String", "GITHUB_API_KEY", githubApiKey)
+            buildConfigField("String", "BASE_URL", "\"https://api.github.com/\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -38,6 +46,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -61,6 +70,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
 
     // Core library desugaring
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
@@ -81,6 +91,9 @@ dependencies {
 
     // Datastore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    // Image loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

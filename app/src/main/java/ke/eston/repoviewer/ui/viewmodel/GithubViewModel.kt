@@ -7,19 +7,22 @@ import ke.eston.repoviewer.domain.repository.GithubRepository
 import ke.eston.repoviewer.ui.model.RepositoryListEvent
 import ke.eston.repoviewer.ui.model.RepositoryListState
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 
-private const val PER_PAGE = 10
+private const val PER_PAGE = 20
 
+@OptIn(FlowPreview::class)
 class GithubViewModel(
     private val githubRepository: GithubRepository,
     private val ioDispatcher: CoroutineDispatcher
-): ViewModel() {
+) : ViewModel() {
     private var currentPage = 1
     private var loadComplete = false
-    private var userHandle = ""
     private var repositories = listOf<Repository>()
 
     private val _repositoryListState = MutableStateFlow<RepositoryListState>(
@@ -27,18 +30,38 @@ class GithubViewModel(
     )
     val repositoryListState = _repositoryListState.asStateFlow()
 
+    private val _userHandle = MutableStateFlow("")
+    var userHandle = _userHandle.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _userHandle
+                .debounce(700)
+                .collectLatest {
+                    if (it.isEmpty()) {
+                        _repositoryListState.emit(RepositoryListState.Idle)
+                    } else {
+                        loadFresh()
+                    }
+                }
+        }
+    }
+
     fun handleEvent(event: RepositoryListEvent) {
         when (event) {
             RepositoryListEvent.OnLoadMore -> loadMore()
-            is RepositoryListEvent.OnUserHandleChange -> loadFresh(event)
+            is RepositoryListEvent.OnUserHandleChange -> viewModelScope.launch {
+                _userHandle.emit(event.handle.trim())
+            }
+
             else -> Unit
         }
     }
 
-    private fun loadFresh(event: RepositoryListEvent.OnUserHandleChange) {
+    private fun loadFresh() {
         loadComplete = false
         currentPage = 1
-        userHandle = event.handle
+        loadRepositories()
     }
 
     private fun loadMore() {
@@ -51,8 +74,10 @@ class GithubViewModel(
     private fun loadRepositories() = viewModelScope.launch(ioDispatcher) {
         if (currentPage == 1) {
             _repositoryListState.emit(RepositoryListState.Loading)
+        } else {
+            _repositoryListState.emit(RepositoryListState.LoadingMore(repositories))
         }
-        val result = githubRepository.getRepositories(userHandle, currentPage, PER_PAGE)
+        val result = githubRepository.getRepositories(_userHandle.value, currentPage, PER_PAGE)
         if (result.isSuccess) {
             val repos = result.data!!
             if (repos.isEmpty()) {

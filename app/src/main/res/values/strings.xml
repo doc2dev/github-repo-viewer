@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">RepoViewer</string>
+    <string name="label_language">Language: %1$s</string>
+    <string name="label_repo_viewer">Repo Viewer</string>
+    <string name="content_clear_search">Clear search</string>
+    <string name="lable_no_repos">No repositories found for user \'%1$s\'.</string>
+    <string name="label_error">An error occurred while loading repositories for user \'%1$s\'. Ensure the username is correct, check your connection and try again.</string>
+    <string name="label_prompt">Enter a GitHub user handle to view their repositories</string>
+    <string name="label_loading">Fetching repositories for user %1$s</string>
+    <string name="label_repos">Repositories for user \'%1$s\'</string>
 </resources>

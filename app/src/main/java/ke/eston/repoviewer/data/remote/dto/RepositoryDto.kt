@@ -4,5 +4,5 @@ data class RepositoryDto(
     val id: Long,
     val owner: OwnerDto,
     val name: String,
-    val language: String
+    val language: String?
 )
