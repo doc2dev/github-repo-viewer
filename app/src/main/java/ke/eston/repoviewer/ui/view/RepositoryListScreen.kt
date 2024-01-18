@@ -131,6 +131,8 @@ fun RepositoryList(
     state: RepositoryListState,
     onLoadMore: () -> Unit
 ) {
+    if (userHandle.isEmpty()) return
+
     val repositories: List<Repository> = when (state) {
         is RepositoryListState.Success -> state.repositories
         is RepositoryListState.LoadingMore -> state.repositories
@@ -140,12 +142,10 @@ fun RepositoryList(
         modifier = Modifier.fillMaxSize()
     ) {
         Spacer(Modifier.height(40.dp))
-        if (userHandle.isNotEmpty()) {
-            Text(
-                stringResource(R.string.label_repos, userHandle),
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
+        Text(
+            stringResource(R.string.label_repos, userHandle),
+            style = MaterialTheme.typography.titleMedium
+        )
         Spacer(Modifier.height(16.dp))
         LazyColumn(
             modifier = Modifier.weight(1.0f),
