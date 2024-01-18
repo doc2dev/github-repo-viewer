@@ -53,7 +53,6 @@ class GithubViewModel(
             is RepositoryListEvent.OnUserHandleChange -> viewModelScope.launch {
                 _userHandle.emit(event.handle.trim())
             }
-
             else -> Unit
         }
     }
@@ -73,6 +72,7 @@ class GithubViewModel(
 
     private fun loadRepositories() = viewModelScope.launch(ioDispatcher) {
         if (currentPage == 1) {
+            println("Emitting Loading")
             _repositoryListState.emit(RepositoryListState.Loading)
         } else {
             _repositoryListState.emit(RepositoryListState.LoadingMore(repositories))
@@ -87,6 +87,7 @@ class GithubViewModel(
                 loadComplete = true
             } else {
                 repositories = if (currentPage == 1) repos else repositories + repos
+                println("Emitting Success")
                 _repositoryListState.emit(RepositoryListState.Success(repositories))
             }
         } else {

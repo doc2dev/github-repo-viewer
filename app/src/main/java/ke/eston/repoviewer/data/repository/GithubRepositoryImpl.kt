@@ -6,7 +6,6 @@ import ke.eston.repoviewer.domain.model.Repository
 import ke.eston.repoviewer.domain.repository.GithubRepository
 import ke.eston.repoviewer.domain.result.BaseError
 import ke.eston.repoviewer.domain.result.BaseResult
-import timber.log.Timber
 
 class GithubRepositoryImpl(
     private val dataSource: GithubRemoteDataSource
@@ -20,7 +19,6 @@ class GithubRepositoryImpl(
         when (val apiResult = dataSource.getRepositories(userHandle, page, perPage)) {
             is ApiResult.Success -> {
                 result.data = apiResult.value.map {
-                    Timber.tag("FOO").d("API item: $it")
                     Repository(
                         it.id,
                         it.name,
