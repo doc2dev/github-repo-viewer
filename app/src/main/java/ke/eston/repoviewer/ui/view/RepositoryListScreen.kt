@@ -154,9 +154,10 @@ fun RepositoryList(
             itemsIndexed(repositories) { index, repository ->
                 RepositoryListItem(repository)
                 if (index == repositories.lastIndex) {
-                    SideEffect {
+                    onLoadMore()
+                    /*SideEffect {
                         onLoadMore()
-                    }
+                    }*/
                 }
             }
             if (state is RepositoryListState.LoadingMore) {

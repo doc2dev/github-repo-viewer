@@ -83,11 +83,12 @@ class GithubViewModel(
             if (repos.isEmpty()) {
                 if (currentPage == 1) {
                     _repositoryListState.emit(RepositoryListState.Empty)
+                } else {
+                    _repositoryListState.emit(RepositoryListState.Success(repositories))
                 }
                 loadComplete = true
             } else {
                 repositories = if (currentPage == 1) repos else repositories + repos
-                println("Emitting Success")
                 _repositoryListState.emit(RepositoryListState.Success(repositories))
             }
         } else {
